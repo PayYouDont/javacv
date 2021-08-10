@@ -243,7 +243,6 @@ public class FFmpegFrameGrabber extends FrameGrabber {
             samples_convert_ctx = null;
         }
 
-        got_frame     = null;
         frameGrabbed  = false;
         frame         = null;
         timestamp     = 0;
@@ -381,8 +380,6 @@ public class FFmpegFrameGrabber extends FrameGrabber {
     private Buffer[]        samples_buf_out;
     private PointerPointer  plane_ptr, plane_ptr2;
     private AVPacket        pkt;
-    private int             sizeof_pkt;
-    private int[]           got_frame;
     private SwsContext      img_convert_ctx;
     private SwrContext      samples_convert_ctx;
     private int             samples_channels, samples_format, samples_rate;
@@ -864,8 +861,6 @@ public class FFmpegFrameGrabber extends FrameGrabber {
         plane_ptr       = new PointerPointer(AVFrame.AV_NUM_DATA_POINTERS).retainReference();
         plane_ptr2      = new PointerPointer(AVFrame.AV_NUM_DATA_POINTERS).retainReference();
         pkt             = new AVPacket().retainReference();
-        sizeof_pkt      = pkt.sizeof();
-        got_frame       = new int[1];
         frameGrabbed    = false;
         frame           = new Frame();
         timestamp       = 0;
@@ -1364,26 +1359,31 @@ public class FFmpegFrameGrabber extends FrameGrabber {
                     ret = avcodec_send_packet(video_c, pkt);
                     if (pkt.data() == null && pkt.size() == 0) {
                         pkt.stream_index(-1);
-                        if (ret < 0) {
-                            return null;
-                        }
                     }
-                    if (ret < 0) {
-                        throw new Exception("avcodec_send_packet() error " + ret + ": Error sending a video packet for decoding.");
+                    if (ret == AVERROR_EAGAIN() || ret == AVERROR_EOF()) {
+                        // The video codec may have buffered some frames
+                    } else if (ret < 0) {
+                        // Ignore errors to emulate the behavior of the old API
+                        // throw new Exception("avcodec_send_packet() error " + ret + ": Error sending a video packet for decoding.");
                     }
                 }
 
                 // Did we get a video frame?
-                got_frame[0] = 0;
-                while (ret >= 0 && !done) {
+                while (!done) {
                     ret = avcodec_receive_frame(video_c, picture);
                     if (ret == AVERROR_EAGAIN() || ret == AVERROR_EOF()) {
+                        if (pkt.data() == null && pkt.size() == 0) {
+                            return null;
+                        } else {
+                            readPacket = true;
+                            break;
+                        }
+                    } else if (ret < 0) {
+                        // Ignore errors to emulate the behavior of the old API
+                        // throw new Exception("avcodec_receive_frame() error " + ret + ": Error during video decoding.");
                         readPacket = true;
                         break;
-                    } else if (ret < 0) {
-                        throw new Exception("avcodec_receive_frame() error " + ret + ": Error during video decoding.");
                     }
-                    got_frame[0] = 1;
 
                     if (!keyFrames || picture.pict_type() == AV_PICTURE_TYPE_I) {
                         long pts = picture.best_effort_timestamp();
@@ -1407,21 +1407,23 @@ public class FFmpegFrameGrabber extends FrameGrabber {
                 if (readPacket) {
                     ret = avcodec_send_packet(audio_c, pkt);
                     if (ret < 0) {
-                        throw new Exception("avcodec_send_packet() error " + ret + ": Error sending an audio packet for decoding.");
+                        // Ignore errors to emulate the behavior of the old API
+                        // throw new Exception("avcodec_send_packet() error " + ret + ": Error sending an audio packet for decoding.");
                     }
                 }
 
                 // Did we get an audio frame?
-                got_frame[0] = 0;
-                while (ret >= 0 && !done) {
+                while (!done) {
                     ret = avcodec_receive_frame(audio_c, samples_frame);
                     if (ret == AVERROR_EAGAIN() || ret == AVERROR_EOF()) {
                         readPacket = true;
                         break;
                     } else if (ret < 0) {
-                        throw new Exception("avcodec_receive_frame() error " + ret + ": Error during audio decoding.");
+                        // Ignore errors to emulate the behavior of the old API
+                        // throw new Exception("avcodec_receive_frame() error " + ret + ": Error during audio decoding.");
+                        readPacket = true;
+                        break;
                     }
-                    got_frame[0] = 1;
 
                     long pts = samples_frame.best_effort_timestamp();
                     AVRational time_base = audio_st.time_base();
