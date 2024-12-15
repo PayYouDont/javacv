@@ -41,7 +41,7 @@ public class FFmpegLogCallback extends LogCallback {
 
     static final FFmpegLogCallback instance = new FFmpegLogCallback().retainReference();
 
-    /** Returns an instance that can be used with {@link #setLogCallback(LogCallback)}. */
+    /** Returns an instance that can be used with {@link org.bytedeco.ffmpeg.global.avutil#setLogCallback(LogCallback)}. */
     public static FFmpegLogCallback getInstance() {
         return instance;
     }
@@ -59,6 +59,18 @@ public class FFmpegLogCallback extends LogCallback {
     /** Calls {@code av_log_set_level(level)}. **/
     public static void setLevel(int level) {
         av_log_set_level(level);
+    }
+
+    /** Logs the given rejected options regarding the given command */
+    public static void logRejectedOptions(final AVDictionary options, final String command) {
+        if (getLevel() >= AV_LOG_INFO && av_dict_count(options) > 0) {
+            final StringBuilder sb = new StringBuilder(command + " rejected some options:");
+            AVDictionaryEntry e = null;
+            while ((e = av_dict_iterate(options, e)) != null) {
+                sb.append("\tOption: ").append(e.key().getString()).append(", value: ").append(e.value().getString());
+            }
+            logger.info(sb.toString());
+        }
     }
 
     @Override public void call(int level, BytePointer msg) {
