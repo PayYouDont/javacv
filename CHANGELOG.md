@@ -1,4 +1,29 @@
 
+ * Add `LibgdxFrameConverter` to convert `Frame` to Libgdx `Pixmap` ([pull #2315](https://github.com/bytedeco/javacv/pull/2315))
+ * Fix `FFmpegFrameRecorder` dropped frame issues with audio samples ([pull #2307](https://github.com/bytedeco/javacv/pull/2307))
+ * Add `FrameFilter.videoFilterArgs/audioFilterArgs` properties to support multiple different inputs ([pull #2304](https://github.com/bytedeco/javacv/pull/2304))
+ * Ensure `FFmpegFrameGrabber.start()` skips over streams with no codecs ([issue #2299](https://github.com/bytedeco/javacv/issues/2299))
+ * Add `FFmpegLogCallback.logRejectedOptions()` for debugging purposes ([pull #2301](https://github.com/bytedeco/javacv/pull/2301))
+
+### November 16, 2024 version 1.5.11
+ * Fix memory leak in `FFmpegFrameGrabber` when decoding from `InputStream` ([pull #2214](https://github.com/bytedeco/javacv/pull/2214))
+ * Upgrade dependencies for OpenBLAS 0.3.28, OpenCV 4.10.0, FFmpeg 7.1, Leptonica 1.85.0, Tesseract 5.5.0
+
+### January 29, 2024 version 1.5.10
+ * Work around `swscale` bug in `FFmpegFrameGrabber` for images with unaligned width ([issue #1960](https://github.com/bytedeco/javacv/issues/1960))
+ * Improve `FFmpegFrameGrabber.setTimestamp()` further for MPEG-TS streams ([pull #2144](https://github.com/bytedeco/javacv/pull/2144))
+ * Fix `module-info.java` broken since last release ([issue bytedeco/javacpp-presets#1414](https://github.com/bytedeco/javacpp-presets/issues/1414))
+ * Add new `AudioSplitMergeHelper` sample for processing raw audio frames ([pull #2052](https://github.com/bytedeco/javacv/pull/2052))
+ * Upgrade dependencies for OpenBLAS 0.3.26, OpenCV 4.9.0, FFmpeg 6.1.1, Leptonica 1.84.1, Tesseract 5.3.4
+
+### June 6, 2023 version 1.5.9
+ * Add `FrameRecorder.videoSideData/audioSideData` properties and `FFmpegFrameRecorder.setDisplayRotation()` for convenience ([issue #1976](https://github.com/bytedeco/javacv/issues/1976))
+ * Fix `FFmpegFrameGrabber.grab()` not returning audio frames buffered by the codec ([issue #1971](https://github.com/bytedeco/javacv/issues/1971))
+ * Upgrade dependencies for OpenBLAS 0.3.23, OpenCV 4.7.0, FFmpeg 6.0 ([issue #1693](https://github.com/bytedeco/javacv/issues/1693)), librealsense2 2.53.1, Leptonica 1.83.0, Tesseract 5.3.1
+
+### November 2, 2022 version 1.5.8
+ * Override `FFmpegFrameGrabber.getVideoCodecName()/getAudioCodecName()` to return names of opened codecs ([pull #1901](https://github.com/bytedeco/javacv/pull/1901))
+ * Add `FrameGrabber.videoDisposition/audioDisposition` properties to select streams by disposition ([pull #1879](https://github.com/bytedeco/javacv/pull/1879))
  * Work around `OpenKinect2FrameGrabber` failing when provided with a pipeline on some system ([pull #1886](https://github.com/bytedeco/javacv/pull/1886))
  * Fix `FFmpegFrameRecorder.record()` incorrectly flushing the video codec on data frames ([issue #1858](https://github.com/bytedeco/javacv/issues/1858))
  * Improve accuracy of `FFmpegFrameGrabber.setFrameNumber()` ([pull #1851](https://github.com/bytedeco/javacv/pull/1851))
@@ -11,7 +36,7 @@
  * Update `FFmpegStreamingTimeout` sample to use `timeout` instead of `stimeout` for RTSP ([pull #1758](https://github.com/bytedeco/javacv/pull/1758))
  * Restore static calls to `FFmpegFrameGrabber.tryLoad()` and `FFmpegFrameRecorder.tryLoad()` ([issue #1756](https://github.com/bytedeco/javacv/issues/1756))
  * Enable by default on `RealSense2FrameGrabber.start()` all color, depth, and IR streams as `videoStream` ([pull #1750](https://github.com/bytedeco/javacv/pull/1750))
- * Upgrade dependencies for OpenBLAS 0.3.20, OpenCV 4.6.0, FFmpeg 5.1, Leptonica 1.82.0 ([pull #1791](https://github.com/bytedeco/javacv/pull/1791)), Tesseract 5.2.0
+ * Upgrade dependencies for OpenBLAS 0.3.21, OpenCV 4.6.0, FFmpeg 5.1.2, Leptonica 1.82.0 ([pull #1791](https://github.com/bytedeco/javacv/pull/1791)), Tesseract 5.2.0
 
 ### February 11, 2022 version 1.5.7
  * Fix accuracy and latency issues with `FFmpegFrameGrabber.setVideoFrameNumber()` ([pull #1734](https://github.com/bytedeco/javacv/pull/1734))
